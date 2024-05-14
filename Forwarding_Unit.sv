@@ -1,11 +1,11 @@
 module Forwarding_Unit (
-    input logic RUWr_me;
-    input logic RUWr_wb;
-    input logic [4:0] rd_me;
-    input logic [4:0] rd_wb;
-    input logic [4:0] rs1_ex;
-    input logic [4:0] rs2_ex;
-    output logic [1:0] ForwardASrc;
+    input logic RUWr_me,
+    input logic RUWr_wb,
+    input logic [4:0] rd_me,
+    input logic [4:0] rd_wb,
+    input logic [4:0] rs1_ex,
+    input logic [4:0] rs2_ex,
+    output logic [1:0] ForwardASrc,
     output logic [1:0] ForwardBSrc
 );
     
