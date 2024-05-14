@@ -19,14 +19,18 @@ module Forwarding_Unit (
     begin
         if (RUWr_me && (rd_me != 0) && (rd_me == rs1_ex)) begin
             ForwardASrc = 2'b01;
-        end else if (RUWr_me && (rd_me != 0) && (rd_me == rs2_ex)) begin
-            ForwardBSrc = 2'b01;
-        end else if ((RUWr_wb && (rd_wb != 0) && (rd_wb == rs1_ex)) && !(RUWr_me && (rd_me != 0) && (rd_me == rs1_ex))) begin
+        end else if(RUWr_wb && (rd_wb != 0) && (rd_wb == rs1_ex)) begin
             ForwardASrc = 2'b10;
-        end else if((RUWr_wb && (rd_wb != 0) && (rd_wb == rs2_ex)) && !(RUWr_me && (rd_me != 0) && (rd_me == rs2_ex))) begin
-            ForwardBSrc = 2'b10;
         end else begin
             ForwardASrc = 2'b0;
+        end
+
+
+        if (RUWr_me && (rd_me != 0) && (rd_me == rs2_ex)) begin
+            ForwardBSrc = 2'b01;
+        end else if(RUWr_wb && (rd_wb != 0) && (rd_wb == rs2_ex)) begin
+            ForwardBSrc = 2'b10;
+        end else begin
             ForwardBSrc = 2'b0;
         end
     end
