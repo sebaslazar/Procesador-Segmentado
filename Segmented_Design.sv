@@ -69,7 +69,7 @@ module Segmented_Design (
     logic [31:0] ALURes_me = 32'b0;
     logic [31:0] RUrs2_me = 32'b0;
     logic [4:0] rd_me = 32'b0;
-    logic [31:0] PC_Inc_wb = 32'b0;
+    logic [31:0] PCInc_wb = 32'b0;
     logic [31:0] DMDataRd_wb = 32'b0;
     logic [31:0] ALURes_wb = 32'b0;
     logic [4:0] rd_wb = 32'b0;
@@ -81,24 +81,25 @@ module Segmented_Design (
     logic [31:0] Inst_de = 32'b0;
 
     //Registros de control execute
-    logic ALUASrc_ex;
-    logic ALUBSrc_ex;
-    logic [3:0] ALUOp_ex;
-    logic [4:0] BrOp_ex;
-    logic DMWr_ex;
-    logic [2:0] DMCtrl_ex;
-    logic RUWr_ex;
-    logic [1:0] RUDATAWrSrc_ex;
-    logic DMRd_ex;
+    logic ALUASrc_ex = 32'b0;
+    logic ALUBSrc_ex = 32'b0;
+    logic [3:0] ALUOp_ex = 32'b0;
+    logic [4:0] BrOp_ex = 32'b0;
+    logic DMWr_ex = 32'b0;
+    logic [2:0] DMCtrl_ex = 32'b0;
+    logic RUWr_ex = 32'b0;
+    logic [1:0] RUDATAWrSrc_ex = 32'b0;
+    logic DMRd_ex = 32'b0;
 
     //Registros de control memory
-    logic DMWr_me;
-    logic [2:0] DMCtrl_me;
-    logic RUWr_me;
-    logic [1:0] RUDATAWrSrc_me;
+    logic DMWr_me = 32'b0;
+    logic [2:0] DMCtrl_me = 32'b0;
+    logic RUWr_me = 32'b0;
+    logic [1:0] RUDATAWrSrc_me = 32'b0;
 
     //Registro de control de write back
-    logic [1:0] RUDATAWrSrc_wb; 
+    logic RUWr_wb = 32'b0;
+    logic [1:0] RUDATAWrSrc_wb = 32'b0; 
 
     always_ff @(posedge clk) begin
         if(HDUStall == 0) begin
@@ -123,12 +124,12 @@ module Segmented_Design (
         ALURes_me <= ALURes;
         RUrs2_me <= RUrs2_ex;
         rd_me <= rd_ex;
-        PC_Inc_wb <= PCInc_me;
+        PCInc_wb <= PCInc_me;
         DMDataRd_wb <= DataRd;
         ALURes_wb <= ALURes_me;
         rd_wb <= rd_me;
 
-        ALUASrc_ex <= ALUASrc;
+        ALUASrc_ex <= ALUASrc; //Pendiente el Clr
         ALUBSrc_ex <= ALUBSrc;
         ALUOp_ex <= ALUOp;
         BrOp_ex <= BrOp;
@@ -144,14 +145,14 @@ module Segmented_Design (
         RUDATAWrSrc_me <= RUDATAWrSrc_ex;
 
         RUDATAWrSrc_wb <= RUDATAWrSrc_me;
+        RUWr_wb <= RUWr_me;
     end
 
     always @(*) begin
         sumador = PC_fe + 4;
 
-        ((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PC_Inc_wb: 2'b00)))
-        A <= ALUASrc_ex ? PC_ex : ((ForwardASrc==2'b00) ? RUrs1_ex: ((ForwardASrc==2'b01) ? ALURes_me: ((ForwardASrc==2'b10) ? ((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PC_Inc_wb: 2'b00))): 2'b00)));
-        B <= ALUBSrc_ex ? ImmExt_ex : ((ForwardBSrc==2'b00) ? RUrs2_ex: ((ForwardBSrc==2'b01) ? ALURes_me: ((ForwardBSrc==2'b10) ? ((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PC_Inc_wb: 2'b00))): 2'b00)));
+        A <= ALUASrc_ex ? PC_ex : ((ForwardASrc==2'b00) ? RUrs1_ex: ((ForwardASrc==2'b01) ? ALURes_me: ((ForwardASrc==2'b10) ? ((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PCInc_wb: 2'b00))): 2'b00)));
+        B <= ALUBSrc_ex ? ImmExt_ex : ((ForwardBSrc==2'b00) ? RUrs2_ex: ((ForwardBSrc==2'b01) ? ALURes_me: ((ForwardBSrc==2'b10) ? ((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PCInc_wb: 2'b00))): 2'b00)));
     end
 
 
@@ -163,8 +164,8 @@ module Segmented_Design (
     );
 
     Branch_Unit branch_unit(
-        .BRUrs1(RUrs1),
-        .BRUrs2(RUrs2),
+        .BRUrs1(RUrs1_ex),
+        .BRUrs2(RUrs2_ex),
         .BrOp(BrOp_ex),
         .NextPCSrc(NextPCSrc)
     );
@@ -181,12 +182,13 @@ module Segmented_Design (
         .DMCtrl(DMCtrl),
         .RUWr(RUWr),
         .RUDATAWrSrc(RUDATAWrSrc),
-        .ImmSrc(ImmSrc)
+        .ImmSrc_de(ImmSrc_de),
+        .DMRd(DMRd)
     );
 
     Data_Memory data_memory(
-        .Address(ALURes),
-        .DataWr(RUrs2),
+        .Address(ALURes_me),
+        .DataWr(RUrs2_me),
         .DMWr(DMWr_me),
         .DMCtrl(DMCtrl_me),
         .DataRd(DataRd)
@@ -204,12 +206,12 @@ module Segmented_Design (
     );
 
     Register_Unit register_unit(
-        .RUWr(RUWr),
+        .RUWr(RUWr_wb),
         .clk(clk),
         .rs1(Inst_de[19:15]),
         .rs2(Inst_de[24:20]),
         .rd(rd_wb),
-        .RUDataWr((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PC_Inc_wb: 2'b00))),
+        .RUDataWr((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PCInc_wb: 2'b00))),
         .RUrs1(RUrs1),
         .RUrs2(RUrs2)
     );
@@ -227,8 +229,10 @@ module Segmented_Design (
         .RUWr_wb(RUWr_wb),
         .rd_me(rd_me),
         .rd_wb(rd_wb),
-        .rs1_de(rs1_de),
-        .rs2_de(rs2_de)
+        .rs1_ex(rs1_ex),
+        .rs2_ex(rs2_ex),
+        .ForwardASrc(ForwardASrc),
+        .ForwardBSrc(ForwardBSrc)
     )
 
     assign result = ALURes_wb;
