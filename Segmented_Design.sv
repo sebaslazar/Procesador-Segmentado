@@ -4,10 +4,10 @@
 `include "Data_Memory.sv"
 `include "Imm_Gen.sv"
 `include "Instruction_Memory.sv"
-`include "PC.sv"
 `include "Register_Unit.sv"
 `include "Forwarding_Unit.sv"
 `include "Hazard_Detection_Unit.sv"
+`include "Mux_3to1.sv"
 
 module Segmented_Design (
     input logic clk,
@@ -101,14 +101,21 @@ module Segmented_Design (
     logic RUWr_wb = 32'b0;
     logic [1:0] RUDATAWrSrc_wb = 32'b0; 
 
+    //Otros
+    logic [31:0] Mux_3to1_RUrs1;
+    logic [31:0] Mux_3to1_RUrs2;
+
+
     always_ff @(posedge clk) begin
         if(HDUStall == 0) begin
             PC_fe <= NextPCSrc ? ALURes : sumador;
             PCInc_de <= sumador;
             PC_de <= PC_fe;
-            if(NextPCSrc) begin
-                Inst_de <= 32'b00000000000000000000000000110011;
-            end else begin
+        end
+        if(NextPCSrc) begin
+            Inst_de <= 32'b00000000000000000000000000110011;
+        end else begin
+            if (HDUStall == 0) begin
                 Inst_de <= instruction;
             end
         end
@@ -129,15 +136,28 @@ module Segmented_Design (
         ALURes_wb <= ALURes_me;
         rd_wb <= rd_me;
 
-        ALUASrc_ex <= ALUASrc; //Pendiente el Clr
-        ALUBSrc_ex <= ALUBSrc;
-        ALUOp_ex <= ALUOp;
-        BrOp_ex <= BrOp;
-        DMWr_ex <= DMWr;
-        DMCtrl_ex <= DMCtrl;
-        RUWr_ex <= RUWr;
-        RUDATAWrSrc_ex <= RUDATAWrSrc;
-        DMRd_ex <= DMRd;
+        //Pendiente el CLR
+        if (HDUStall || NextPCSrc) begin
+            ALUASrc_ex <= 1'b0;
+            ALUBSrc_ex <= 1'b0;
+            ALUOp_ex <= 4'b0;
+            BrOp_ex <= 1'b0;
+            DMWr_ex <= DMWr;
+            DMCtrl_ex <= DMCtrl;
+            RUWr_ex <= RUWr;
+            RUDATAWrSrc_ex <= RUDATAWrSrc;
+            DMRd_ex <= DMRd;
+        end else begin
+            ALUASrc_ex <= ALUASrc;
+            ALUBSrc_ex <= ALUBSrc;
+            ALUOp_ex <= ALUOp;
+            BrOp_ex <= BrOp;
+            DMWr_ex <= DMWr;
+            DMCtrl_ex <= DMCtrl;
+            RUWr_ex <= RUWr;
+            RUDATAWrSrc_ex <= RUDATAWrSrc;
+            DMRd_ex <= DMRd;
+        end
 
         DMWr_me <= DMWr_ex;
         DMCtrl_me <= DMCtrl_ex;
@@ -151,8 +171,8 @@ module Segmented_Design (
     always @(*) begin
         sumador = PC_fe + 4;
 
-        A <= ALUASrc_ex ? PC_ex : ((ForwardASrc==2'b00) ? RUrs1_ex: ((ForwardASrc==2'b01) ? ALURes_me: ((ForwardASrc==2'b10) ? ((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PCInc_wb: 2'b00))): 2'b00)));
-        B <= ALUBSrc_ex ? ImmExt_ex : ((ForwardBSrc==2'b00) ? RUrs2_ex: ((ForwardBSrc==2'b01) ? ALURes_me: ((ForwardBSrc==2'b10) ? ((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PCInc_wb: 2'b00))): 2'b00)));
+        A <= ALUASrc_ex ? PC_ex : Mux_3to1_RUrs1;
+        B <= ALUBSrc_ex ? ImmExt_ex : Mux_3to1_RUrs2;
     end
 
 
@@ -164,8 +184,8 @@ module Segmented_Design (
     );
 
     Branch_Unit branch_unit(
-        .BRUrs1(RUrs1_ex),
-        .BRUrs2(RUrs2_ex),
+        .BRUrs1(Mux_3to1_RUrs1),
+        .BRUrs2(Mux_3to1_RUrs2),
         .BrOp(BrOp_ex),
         .NextPCSrc(NextPCSrc)
     );
@@ -222,7 +242,7 @@ module Segmented_Design (
         .rs2_de(Inst_de[24:20]),
         .rd_ex(rd_ex),
         .HDUStall(HDUStall)
-    )
+    );
 
     Forwarding_Unit Forward_Unit(
         .RUWr_me(RUWr_me),
@@ -233,9 +253,25 @@ module Segmented_Design (
         .rs2_ex(rs2_ex),
         .ForwardASrc(ForwardASrc),
         .ForwardBSrc(ForwardBSrc)
-    )
+    );
 
-    assign result = ALURes_wb;
+    Mux_3to1 mux_RUrs1_ex (
+        .a((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PCInc_wb: 2'b00))),
+        .b(ALURes_me),
+        .c(RUrs1_ex),
+        .selector(ForwardASrc),
+        .mux_out(Mux_3to1_RUrs1)
+    );
+
+    Mux_3to1 mux_RUrs2_ex (
+        .a((RUDATAWrSrc_wb==2'b00) ? ALURes_wb: ((RUDATAWrSrc_wb==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc_wb==2'b10) ? PCInc_wb: 2'b00))),
+        .b(ALURes_me),
+        .c(RUrs2_ex),
+        .selector(ForwardBSrc),
+        .mux_out(Mux_3to1_RUrs2)
+    );
+
+    assign result = ALURes;
 
 
 endmodule
