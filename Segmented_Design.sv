@@ -6,6 +6,8 @@
 `include "Instruction_Memory.sv"
 `include "PC.sv"
 `include "Register_Unit.sv"
+`include "Forwarding_Unit.sv"
+`include "Hazard_Detection_Unit.sv"
 
 module Segmented_Design (
     input logic clk,
@@ -41,22 +43,76 @@ module Segmented_Design (
     logic [31:0] instruction;
 
     //Sumador
-    logic [31:0] sumador;
-    
-    //PC
-    logic [31:0] PC_Input;
-    logic [31:0] PC_Output;
+    logic [31:0] sumador = 32'b0;
 
     //Register_Unit
     logic [31:0] RUrs1;
     logic [31:0] RUrs2;
 
-    always @(*) begin
-        sumador = PC_Output + 4;
+    //Forwarding_Unit
+    logic [1:0] ForwardASrc;
+    logic [1:0] ForwardBSrc;
 
-        PC_Input <= NextPCSrc ? ALURes : sumador;
-        A <= ALUASrc ? PC_Output : RUrs1;
-        B <= ALUBSrc ? ImmExt : RUrs2;
+    //Hazard_Detection_Unit
+    logic HDUStall;
+
+    //Registros simples
+    logic [31:0] PCInc_ex;
+    logic [31:0] PC_ex;
+    logic [31:0] RUrs1_ex;
+    logic [31:0] RUrs2_ex;
+    logic [31:0] ImmExt_ex;
+    logic [4:0] rd_ex;
+    logic [4:0] rs1_ex;
+    logic [4:0] rs2_ex;
+    logic [31:0] PCInc_me;
+    logic [31:0] ALURes_me;
+    logic [31:0] RUrs2_me;
+    logic [4:0] rd_me;
+    logic [31:0] PC_Inc_wb;
+    logic [31:0] DMDataRd_wb;
+    logic [31:0] ALURes_wb;
+    logic [4:0] rd_wb;
+
+    //Registros con Enable y Clear
+    logic [31:0] PC_fe = 32'b0;
+    logic [31:0] PCInc_de;
+    logic [31:0] PC_de;
+    logic [31:0] Inst_de;
+
+    always_ff @(posedge clk) begin
+        if(HDUStall == 0) begin
+            PC_fe <= NextPCSrc ? ALURes : sumador;
+            PCInc_de <= sumador;
+            PC_de <= PC_fe;
+        end
+        if(NextPCSrc) begin
+            Inst_de <= 32'b00000000000000000000000000110011;
+        end else begin
+            Inst_de <= instruction;
+        end
+        PCInc_ex <= PCInc_de;
+        PC_ex <= PC_de;
+        RUrs1_ex <= RUrs1;
+        RUrs2_ex <= RUrs2;
+        ImmExt_ex <= ImmExt;
+        rd_ex <= Inst_de[11:7];
+        rs1_ex <= Inst_de[19:15];
+        rs2_ex <= Inst_de[24:20];
+        PCInc_me <= PCInc_ex;
+        ALURes_me <= ALURes;
+        RUrs2_me <= RUrs2_ex;
+        rd_me <= rd_ex;
+        PC_Inc_wb <= PCInc_me;
+        DMDataRd_wb <= DataRd;
+        ALURes_wb <= ALURes_me;
+        rd_wb <= rd_me;
+    end
+
+    always @(*) begin
+        sumador = PC_fe + 4;
+        A <= ALUASrc ? PC_ex : RUrs1;
+        B <= ALUBSrc ? ImmExt_ex : RUrs2;
     end
 
 
@@ -75,9 +131,9 @@ module Segmented_Design (
     );
 
     Control_Unit control_unit(
-        .OpCode(instruction[6:0]),
-        .Funct3(instruction[14:12]),
-        .Funct7(instruction[31:25]),
+        .OpCode(Inst_de[6:0]),
+        .Funct3(Inst_de[14:12]),
+        .Funct7(Inst_de[31:25]),
         .ALUASrc(ALUASrc),
         .ALUBSrc(ALUBSrc),
         .ALUOp(ALUOp),
@@ -98,34 +154,28 @@ module Segmented_Design (
     );
 
     Imm_Gen imm_gen(
-        .Inst(instruction[31:7]),
+        .Inst(Inst_de[31:7]),
         .ImmSrc(ImmSrc),
         .ImmExt(ImmExt)
     );
 
     Instruction_Memory instruction_memory(
-        .address(PC_Output),
+        .address(PC_fe),
         .instruction(instruction)
-    );
-
-    PC programm_counter(
-        .clk(clk),
-        .PC_Input(PC_Input),
-        .PC_Output(PC_Output)
     );
 
     Register_Unit register_unit(
         .RUWr(RUWr),
         .clk(clk),
-        .rs1(instruction[19:15]),
-        .rs2(instruction[24:20]),
-        .rd(instruction[11:7]),
-        .RUDataWr((RUDATAWrSrc==2'b00) ? ALURes: ((RUDATAWrSrc==2'b01) ? DataRd: ((RUDATAWrSrc==2'b10) ? sumador: 2'b00))),
+        .rs1(Inst_de[19:15]),
+        .rs2(Inst_de[24:20]),
+        .rd(rd_wb),
+        .RUDataWr((RUDATAWrSrc==2'b00) ? ALURes_wb: ((RUDATAWrSrc==2'b01) ? DMDataRd_wb: ((RUDATAWrSrc==2'b10) ? PC_Inc_wb: 2'b00))),
         .RUrs1(RUrs1),
         .RUrs2(RUrs2)
     );
 
-    assign result = ALURes;
+    assign result = ALURes_wb;
 
 
 endmodule

@@ -1,4 +1,4 @@
-module PC (
+module PC_fe (
     input logic clk,
     input logic [31:0] PC_Input,
     output logic [31:0] PC_Output
