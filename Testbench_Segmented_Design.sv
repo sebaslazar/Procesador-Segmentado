@@ -1,8 +1,8 @@
-module tb_Unicycle_Design;
+module tb_Segmented_Design;
     logic clk;
     logic [31:0] result;
 
-    Unicycle_Design Unicycle_Design_Test(
+    Segmented_Design Segmented_Design_Test(
         .clk(clk),
         .result(result)
     );

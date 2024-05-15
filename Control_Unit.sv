@@ -10,7 +10,8 @@ module Control_Unit (
     output logic [2:0] DMCtrl,
     output logic RUWr,
     output logic [1:0] RUDATAWrSrc,
-    output logic [2:0] ImmSrc
+    output logic [2:0] ImmSrc,
+    output logic DMRd_ex
 );
     always @(*) begin
         case (OpCode)
@@ -24,7 +25,8 @@ module Control_Unit (
             DMCtrl = 3'b0;
             RUWr = 1'b1;
             RUDATAWrSrc = 2'b0;
-            ImmSrc =3'b0;
+            ImmSrc = 3'b0;
+            DMRd_ex = 1'b0;
         end
         7'b0010011: //Tipo I
         begin
@@ -41,6 +43,7 @@ module Control_Unit (
             RUWr = 1'b1;
             RUDATAWrSrc = 2'b0;
             ImmSrc =3'b0;
+            DMRd_ex = 1'b0;
         end
         7'b0000011: //Tipo I-Lectura
         begin
@@ -53,6 +56,7 @@ module Control_Unit (
             RUWr = 1'b1;
             RUDATAWrSrc = 2'b01;
             ImmSrc =3'b0;
+            DMRd_ex = 1'b1;
         end
         7'b1100111: //Tipo I-Salto
         begin
@@ -65,6 +69,7 @@ module Control_Unit (
             RUWr = 1'b1;
             RUDATAWrSrc = 2'b10;
             ImmSrc =3'b0;
+            DMRd_ex = 1'b0;
         end
         7'b0100011: //Tipo S
         begin
@@ -77,6 +82,7 @@ module Control_Unit (
             RUWr = 1'b0;
             RUDATAWrSrc = 2'b10;
             ImmSrc =3'b001;
+            DMRd_ex = 1'b0;
         end
         7'b1100011: //Tipo B
         begin
@@ -89,6 +95,7 @@ module Control_Unit (
             RUWr = 1'b0;
             RUDATAWrSrc = 2'b10;
             ImmSrc =3'b101;
+            DMRd_ex = 1'b0;
         end
         7'b1101111: //Tipo J
         begin
@@ -101,6 +108,7 @@ module Control_Unit (
             RUWr = 1'b1;
             RUDATAWrSrc = 2'b10;
             ImmSrc =3'b110;
+            DMRd_ex = 1'b0;
         end
         7'b0110111: //Tipo U-lui
         begin
@@ -113,6 +121,7 @@ module Control_Unit (
             RUWr = 1'b0;
             RUDATAWrSrc = 2'b0;
             ImmSrc =3'b010;
+            DMRd_ex = 1'b0;
         end
         7'b0010111: //Tipo U-auipc
         begin
@@ -125,6 +134,7 @@ module Control_Unit (
             RUWr = 1'b1;
             RUDATAWrSrc = 2'b0;
             ImmSrc =3'b010;
+            DMRd_ex = 1'b0;
         end
     endcase
     end

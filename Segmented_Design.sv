@@ -7,7 +7,7 @@
 `include "PC.sv"
 `include "Register_Unit.sv"
 
-module Unicycle_Design (
+module Segmented_Design (
     input logic clk,
     output logic [31:0] result //Sólo sirve para el Testbench
 );
@@ -29,6 +29,7 @@ module Unicycle_Design (
     logic RUWr;
     logic [1:0] RUDATAWrSrc;
     logic [2:0] ImmSrc;
+    logic DMRd_ex;
 
     //Data_Memory
     logic [31:0] DataRd;

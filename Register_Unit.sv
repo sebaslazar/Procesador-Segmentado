@@ -19,7 +19,7 @@ module Register_Unit (
         RU32[2] = 32'd1000;
     end
 
-    always @(posedge clk)
+    always @(negedge clk)
     begin
         if(RUWr && (rd!=0))
         begin
