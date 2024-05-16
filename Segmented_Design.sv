@@ -141,7 +141,7 @@ module Segmented_Design (
             ALUASrc_ex <= 1'b0;
             ALUBSrc_ex <= 1'b0;
             ALUOp_ex <= 4'b0;
-            BrOp_ex <= 1'b0;
+            BrOp_ex <= 5'b0;
             DMWr_ex <= DMWr;
             DMCtrl_ex <= DMCtrl;
             RUWr_ex <= RUWr;
