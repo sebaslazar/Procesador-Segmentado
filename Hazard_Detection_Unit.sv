@@ -5,6 +5,9 @@ module Hazard_Detection_Unit (
     input logic [4:0] rd_ex,
     output logic HDUStall
 );
+    initial begin
+        HDUStall = 1'b0;
+    end
     
     always @(*) begin
         if (DMRd_ex && ((rd_ex == rs1_de) || (rd_ex == rs2_de))) begin
