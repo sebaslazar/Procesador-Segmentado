@@ -81,15 +81,15 @@ module Segmented_Design (
     logic [31:0] Inst_de = 32'b0;
 
     //Registros de control execute
-    logic ALUASrc_ex = 32'b0;
-    logic ALUBSrc_ex = 32'b0;
-    logic [3:0] ALUOp_ex = 32'b0;
-    logic [4:0] BrOp_ex = 32'b0;
-    logic DMWr_ex = 32'b0;
-    logic [2:0] DMCtrl_ex = 32'b0;
-    logic RUWr_ex = 32'b0;
-    logic [1:0] RUDATAWrSrc_ex = 32'b0;
-    logic DMRd_ex = 32'b0;
+    logic ALUASrc_ex = 1'b0;
+    logic ALUBSrc_ex = 1'b0;
+    logic [3:0] ALUOp_ex = 4'b0;
+    logic [4:0] BrOp_ex = 5'b0;
+    logic DMWr_ex = 1'b0;
+    logic [2:0] DMCtrl_ex = 3'b0;
+    logic RUWr_ex = 1'b0;
+    logic [1:0] RUDATAWrSrc_ex = 2'b0;
+    logic DMRd_ex = 1'b0;
 
     //Registros de control memory
     logic DMWr_me = 32'b0;
@@ -142,11 +142,11 @@ module Segmented_Design (
             ALUBSrc_ex <= 1'b0;
             ALUOp_ex <= 4'b0;
             BrOp_ex <= 5'b0;
-            DMWr_ex <= DMWr;
-            DMCtrl_ex <= DMCtrl;
-            RUWr_ex <= RUWr;
-            RUDATAWrSrc_ex <= RUDATAWrSrc;
-            DMRd_ex <= DMRd;
+            DMWr_ex <= 1'b0;
+            DMCtrl_ex <= 3'b0;
+            RUWr_ex <= 1'b0;
+            RUDATAWrSrc_ex <= 2'b0;
+            DMRd_ex <= 1'b0;
         end else begin
             ALUASrc_ex <= ALUASrc;
             ALUBSrc_ex <= ALUBSrc;
