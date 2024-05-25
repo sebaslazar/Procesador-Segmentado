@@ -2,7 +2,7 @@ module CharPos_Module ( //160 caracteres en horizontal y 64 caracteres en vertic
     input logic [10:0] H,
     input logic [10:0] V,
     output logic [7:0] scrX,
-    output logic [5:0] scrY,
+    output logic [6:0] scrY,
     output logic [2:0] charX,
     output logic [3:0] charY,
 );
