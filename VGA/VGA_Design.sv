@@ -51,8 +51,7 @@ module VGA_Module (
 
     ScreenRAM Screen_RAM (
         .clk(clk),
-        .scrX(screenX),
-        .scrY(screenY),
+        .address({screenY, screenX})
         .selector(1'b1),
         .char(character)
     );
