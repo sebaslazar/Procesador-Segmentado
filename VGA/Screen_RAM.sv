@@ -3,7 +3,7 @@ module Screen_RAM (
     input logic [7:0] scrX,
     input logic [6:0] scrY,
     input logic selector,
-    output logic [7:0] caracter
+    output logic [7:0] char
 );
     logic [7:0] message [0:10239];
     logic [14:0] address;
@@ -20,11 +20,11 @@ module Screen_RAM (
         address <= {scrY, scrX};
 
         if (~selector) begin
-            caracter <= 8'b0; //NULL
+            char <= 8'b0; //NULL
         end else if (address > 15'd10239) begin
-            caracter <= 8'b0;
+            char <= 8'b0;
         end else begin
-            caracter <= message[address];
+            char <= message[address];
         end
     end
 endmodule
