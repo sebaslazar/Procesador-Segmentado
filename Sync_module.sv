@@ -15,14 +15,14 @@ V Back Porch = 38 Lines
 V Sync = 3 Lines
 */
 
-module Sync_module (
+module Sync_Module (
     input logic clk,
     output logic VGA_sync,
     output logic VGA_blank,
     output logic hsync,
     output logic vsync,
-    output logic H,
-    output logic V
+    output logic [10:0] H,
+    output logic [10:0] V
 );
     logic [10:0] H_pos;
     logic [10:0] V_pos;
