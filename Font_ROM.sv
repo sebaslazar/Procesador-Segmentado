@@ -1,6 +1,6 @@
 module Font_ROM (
   input logic clk,
-  input logic [10:0] address, //Pendiente: Agregar ASCII extendido
+  input logic [11:0] address, //Pendiente: Agregar ASCII extendido
   input logic selector,
   output logic [7:0] data
 );
