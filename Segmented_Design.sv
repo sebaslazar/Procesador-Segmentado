@@ -11,6 +11,8 @@
 
 module Segmented_Design (
     input logic clk,
+    input logic [9:0] sw,
+    output logic [9:0] led,
     output logic [31:0] result //Sólo sirve para el Testbench
 );
     //ALU
@@ -209,9 +211,11 @@ module Segmented_Design (
     Data_Memory data_memory(
         .Address(ALURes_me),
         .DataWr(RUrs2_me),
-        .DMWr(DMWr_me),
+        .DMIOWr(DMWr_me),
         .DMCtrl(DMCtrl_me),
-        .DataRd(DataRd)
+        .sw(sw),
+        .DataRd(DataRd),
+        .led(led)
     );
 
     Imm_Gen imm_gen(
