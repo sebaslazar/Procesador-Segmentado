@@ -10,7 +10,7 @@ module CharPos_Module ( //160 caracteres en horizontal y 64 caracteres en vertic
     always @(*) begin
         charX <= H[2:0];
         charY <= V[3:0];
-        scrX <= H[7:0];
-        scrY <= V[5:0];
+        scrX <= H[10:3];
+        scrY <= V[10:4];
     end
 endmodule
