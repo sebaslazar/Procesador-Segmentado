@@ -9,7 +9,7 @@ module Screen_RAM (
         for (int i = 0; i < 10239; i++) begin
             message[i] = 8'b0;
         end
-        $readmemh("Screen_test.txt", message);
+        $readmemh("Screen_Test.txt", message);
     end
 
     always @(posedge clk) begin

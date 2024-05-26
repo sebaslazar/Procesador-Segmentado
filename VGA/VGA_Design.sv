@@ -51,8 +51,7 @@ module VGA_Module (
 
     ScreenRAM Screen_RAM (
         .clk(clk),
-        .address({screenY, screenX})
-        .selector(1'b1),
+        .address({screenY, screenX}),
         .char(character)
     );
 
@@ -78,7 +77,6 @@ module VGA_Module (
     FontROM Font_ROM (
         .clk(clk),
         .address(char_address),
-        .selector(1'b1),
         .data(row_character)
     );
 

@@ -31,7 +31,8 @@ module Text_Module (
         background_color_save = 24'b0;
         VGA_view_save = 1'b0;
         columna_save = 1'b0;
-        pixel = 2'b0
+        pixel = 2'b0;
+        caracter_fila = 8'b0;
     end
 
     always @(posedge clk) begin

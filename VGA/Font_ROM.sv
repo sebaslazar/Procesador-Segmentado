@@ -1,15 +1,12 @@
-module Font_ROM (
+module Font_ROM(
   input logic clk,
   input logic [11:0] address, //Pendiente: Agregar ASCII extendido
-  input logic selector,
   output logic [7:0] data
 );
   logic [7:0] font [0:2019];
 
-  always @ (*) begin
-    if (~selector)
-      data <= 8'hz;
-    else if (address > 11'h7e3)
+  always @ (posedge clk) begin
+    if (address > 11'h7e3)
       data <= 8'h0;
     else
       data <= font[address];
