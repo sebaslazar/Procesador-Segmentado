@@ -5,7 +5,7 @@
 `include "Text_Module.sv"
 
 module VGA_Module (
-    input logic clk,
+    input logic clk, //108 MHz
     input logic [23:0] background_color,
     input logic [23:0] font_color,
     output logic [7:0] R_out,
