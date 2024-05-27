@@ -6,8 +6,6 @@
 
 module VGA_Module (
     input logic clk, //108 MHz
-    input logic [23:0] background_color,
-    input logic [23:0] font_color,
     output logic [7:0] R_out,
     output logic [7:0] G_out,
     output logic [7:0] B_out,
@@ -29,34 +27,35 @@ module VGA_Module (
     logic [7:0] character;
     logic [7:0] row_character;
     logic [11:0] char_address;
+    
 
-    Sync Sync_Module(
-        .clk(clk),
+    Sync_Module Sync(
+        .clk(clk_108MHz),
         .VGA_sync(VGA_sync),
         .VGA_blank(blank),
         .hsync(horizontal_sync),
-        .vsync(vertical_sync)
+        .vsync(vertical_sync),
         .H(Horizontal),
         .V(Vertical)
     );
 
-    CharPos CharPos_Module (
+    CharPos_Module CharPos (
         .H(Horizontal),
         .V(Vertical),
         .scrX(screenX),
-        .srcY(screenY),
+        .scrY(screenY),
         .charX(characterX),
-        .charY(characterY),
+        .charY(characterY)
     );
 
-    ScreenRAM Screen_RAM (
-        .clk(clk),
+    Screen_RAM ScreenRAM (
+        .clk(clk_108MHz),
         .address({screenY, screenX}),
         .char(character)
     );
 
-    TextMode Text_Module (
-        .clk(clk),
+    Text_Module TextMode (
+        .clk(clk_108MHz),
         .hsync(horizontal_sync),
         .vsync(vertical_sync),
         .caracter(character),
@@ -74,8 +73,8 @@ module VGA_Module (
         .address(char_address)
     );
 
-    FontROM Font_ROM (
-        .clk(clk),
+    Font_ROM FontROM (
+        .clk(clk_108MHz),
         .address(char_address),
         .data(row_character)
     );

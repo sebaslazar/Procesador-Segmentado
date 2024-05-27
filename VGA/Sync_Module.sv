@@ -34,11 +34,11 @@ module Sync_Module (
     
     always @(posedge clk) begin
         if (H_pos < 1688) begin //Recorrido por toda la pantalla
-            H_pos <= H_pos + 1;
+            H_pos <= H_pos + 1'b1;
         end else begin
             H_pos <= 11'b0;
             if (V_pos < 1066) begin
-                V_pos <= V_pos + 1;
+                V_pos <= V_pos + 1'b1;
             end else begin
                 V_pos <= 11'b0;
             end

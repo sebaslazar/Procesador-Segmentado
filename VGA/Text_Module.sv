@@ -32,11 +32,10 @@ module Text_Module (
         VGA_view_save = 1'b0;
         columna_save = 1'b0;
         pixel = 2'b0;
-        caracter_fila = 8'b0;
     end
 
     always @(posedge clk) begin
-        hsync_out <= hsync_save
+        hsync_out <= hsync_save;
         vsync_out <= vsync_save;
         hsync_save <= hsync;
         vsync_save <= vsync;
