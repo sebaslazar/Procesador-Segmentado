@@ -138,7 +138,6 @@ module Segmented_Design (
         ALURes_wb <= ALURes_me;
         rd_wb <= rd_me;
 
-        //Pendiente el CLR
         if (HDUStall || NextPCSrc) begin
             ALUASrc_ex <= 1'b0;
             ALUBSrc_ex <= 1'b0;
